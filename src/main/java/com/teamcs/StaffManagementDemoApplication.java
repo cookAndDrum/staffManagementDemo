@@ -46,6 +46,12 @@ public class StaffManagementDemoApplication {
 					"bad@mail.com", "password", staffProfile);
 			suspendedStaff.setAccountSuspended(true);
 			userAccountRepository.save(suspendedStaff);
+
+			UserProfile ownerProfile = new UserProfile("OWNER", "");
+			userProfileRepository.save(ownerProfile);
+			UserAccount ownerUser = new UserAccount("owner", "owner",
+					"owner@mail.com", "password", ownerProfile);
+			userAccountRepository.save(ownerUser);
 		};
 	}
 }

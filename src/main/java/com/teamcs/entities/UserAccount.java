@@ -6,9 +6,7 @@ import com.teamcs.utils.LoginRequest;
 import com.teamcs.utils.UserAccountDAO;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "UserAccounts")
@@ -67,9 +65,16 @@ public class UserAccount {
                   orElseThrow(() -> new IllegalStateException("Invalid username or password"));
     }
 
-    public static List<UserAccountDAO> userAccountsView (UserAccountRepository userAccountRepository) {
+    public static List<UserAccountDAO> allUserAccountsView(UserAccountRepository userAccountRepository) {
         List<UserAccount> userAccountList = userAccountRepository.findAll();
         return  userAccountList.stream().map(UserAccountDAO::new).toList();
+    }
+
+    public static UserAccountDAO userAccountView(UserAccountRepository userAccountRepository, String username) {
+        return new UserAccountDAO(userAccountRepository.findByUsername(username).orElseThrow(
+                // Should be no error
+                () -> new IllegalStateException("Invalid username")
+        ));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////

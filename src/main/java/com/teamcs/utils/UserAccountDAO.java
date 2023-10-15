@@ -6,6 +6,7 @@ public class UserAccountDAO {
     private String name;
     private String username;
     private String email;
+    private String profile;
 
     public UserAccountDAO() {
         super();
@@ -15,12 +16,22 @@ public class UserAccountDAO {
         this.name = userAccount.getName();
         this.username = userAccount.getUsername();
         this.email = userAccount.getEmail();
+        this.profile = userAccount.getUserProfile().getProfile();
     }
 
-    public UserAccountDAO(String name, String username, String email) {
+    public UserAccountDAO(String name, String username, String email, String profile) {
         this.name = name;
         this.username = username;
+        this.profile = profile;
         this.email = email;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 
     public String getName() {
