@@ -1,4 +1,4 @@
-package com.teamcs.entities;
+package com.teamcs.utils;
 
 public class LoginRequest {
     private String username;

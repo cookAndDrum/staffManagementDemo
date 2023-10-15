@@ -1,6 +1,6 @@
 package com.teamcs.controllers;
 
-import com.teamcs.entities.LoginRequest;
+import com.teamcs.utils.LoginRequest;
 import com.teamcs.entities.UserAccount;
 import com.teamcs.repositories.UserAccountRepository;
 import com.teamcs.repositories.UserProfileRepository;
@@ -19,13 +19,21 @@ public class LoginController {
         this.userProfileRepository = userProfileRepository;
     }
 
+    // Not sure if I am allowed to use the temporary object created to carry request body
+    // Should use custom Exception
     @PostMapping
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        if (request == null || request.getUsername().isEmpty()
+                || request.getPassword().isEmpty())
+            throw new IllegalStateException ("Username or Password is Empty");
 
-        boolean loginStatus = UserAccount.userAccountLogin();
+        UserAccount loginUser = UserAccount.userAccountLogin(
+                userAccountRepository, userProfileRepository, request
+        );
 
-        String message = "The login is not implemented yet " + request.getUsername() + " " +
-                request.getPassword();
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        if (loginUser.isAccountSuspended())
+            throw new IllegalStateException("User is suspended");
+
+        return new ResponseEntity<>("Login Success", HttpStatus.OK);
     }
 }

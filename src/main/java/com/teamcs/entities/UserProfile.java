@@ -13,6 +13,8 @@ public class UserProfile {
     private String profile;
     private String role;
 
+    public UserProfile() {super();}
+
     public UserProfile(String profile, String role) {
         this.profile = profile;
         this.role = role;
@@ -23,6 +25,18 @@ public class UserProfile {
         this.profile = profile;
         this.role = role;
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    //                                  SERVICE                                        //
+    /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    //                       Getter And Setter, ToString                               //
+    /////////////////////////////////////////////////////////////////////////////////////
 
     public Integer getProfileId() {
         return profileId;
@@ -46,5 +60,14 @@ public class UserProfile {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "UserProfile{" +
+                "profileId=" + profileId +
+                ", profile='" + profile + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }

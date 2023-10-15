@@ -1,6 +1,14 @@
 package com.teamcs.entities;
 
+import com.teamcs.repositories.UserAccountRepository;
+import com.teamcs.repositories.UserProfileRepository;
+import com.teamcs.utils.LoginRequest;
+import com.teamcs.utils.UserAccountDAO;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "UserAccounts")
@@ -9,37 +17,78 @@ public class UserAccount {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     private Integer userId;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
     private String password;
-
-    // todo authority
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "profile_id")
+    private UserProfile userProfile;
+    @Column(nullable = false)
+    private boolean accountSuspended;
 
     public UserAccount () {
         super();
     }
 
-    public UserAccount(Integer id, String name, String username, String email, String password) {
-        this.userId = id;
+    public UserAccount(Integer userId, String name, String username, String email, String password, UserProfile userProfile) {
+        this.userId = userId;
         this.name = name;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.userProfile = userProfile;
+        this.accountSuspended = false;
     }
 
-    public UserAccount(String name, String username, String email, String password) {
+    public UserAccount(String name, String username, String email, String password, UserProfile profile) {
         this.name = name;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.userProfile = profile;
+        this.accountSuspended = false;
     }
 
-    public static boolean userAccountLogin() {
-        return true;
+    /////////////////////////////////////////////////////////////////////////////////////
+    //                                  SERVICE                                        //
+    /////////////////////////////////////////////////////////////////////////////////////
+    public static UserAccount userAccountLogin(
+            UserAccountRepository userAccountRepository,
+            UserProfileRepository userProfileRepository,
+            LoginRequest loginRequest
+    ) {
+          return userAccountRepository.findByUsernameAndPassword(
+                loginRequest.getUsername(), loginRequest.getPassword()).
+                  orElseThrow(() -> new IllegalStateException("Invalid username or password"));
+    }
+
+    public static List<UserAccountDAO> userAccountsView (UserAccountRepository userAccountRepository) {
+        List<UserAccount> userAccountList = userAccountRepository.findAll();
+        return  userAccountList.stream().map(UserAccountDAO::new).toList();
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    //                       Getter And Setter, ToString                               //
+    /////////////////////////////////////////////////////////////////////////////////////
+    public boolean isAccountSuspended() {
+        return accountSuspended;
+    }
+
+    public void setAccountSuspended(boolean accountSuspended) {
+        this.accountSuspended = accountSuspended;
+    }
+
+    public UserProfile getUserProfile() {
+        return userProfile;
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
     }
 
     public Integer getUserId() {
@@ -82,4 +131,16 @@ public class UserAccount {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "UserAccount{" +
+                "userId=" + userId +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", userProfile=" + userProfile +
+                ", accountSuspended=" + accountSuspended +
+                '}';
+    }
 }
