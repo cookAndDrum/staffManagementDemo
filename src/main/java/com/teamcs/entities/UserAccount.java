@@ -1,13 +1,15 @@
 package com.teamcs.entities;
 
 import com.teamcs.repositories.UserAccountRepository;
-import com.teamcs.repositories.UserProfileRepository;
 import com.teamcs.utils.LoginRequest;
 import com.teamcs.utils.UserAccountDAO;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 @Entity
 @Table(name = "UserAccounts")
 public class UserAccount {
@@ -15,7 +17,7 @@ public class UserAccount {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     private Integer userId;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String name;
     @Column(unique = true, nullable = false)
     private String username;
@@ -29,7 +31,11 @@ public class UserAccount {
     @Column(nullable = false)
     private boolean accountSuspended;
 
-    public UserAccount () {
+    @Transient
+    @Autowired
+    private UserAccountRepository userAccountRepository;
+
+    public UserAccount() {
         super();
     }
 
@@ -43,7 +49,8 @@ public class UserAccount {
         this.accountSuspended = false;
     }
 
-    public UserAccount(String name, String username, String email, String password, UserProfile profile) {
+    public UserAccount(String name, String username, String email, String password, UserProfile profile
+                      ) {
         this.name = name;
         this.username = username;
         this.email = email;
@@ -52,30 +59,40 @@ public class UserAccount {
         this.accountSuspended = false;
     }
 
+
     /////////////////////////////////////////////////////////////////////////////////////
     //                                  SERVICE                                        //
     /////////////////////////////////////////////////////////////////////////////////////
-    public static UserAccount userAccountLogin(
-            UserAccountRepository userAccountRepository,
-            UserProfileRepository userProfileRepository,
-            LoginRequest loginRequest
+
+    public UserAccount userAccountLogin(
+            LoginRequest request
     ) {
-          return userAccountRepository.findByUsernameAndPassword(
-                loginRequest.getUsername(), loginRequest.getPassword()).
-                  orElseThrow(() -> new IllegalStateException("Invalid username or password"));
+        return userAccountRepository.findByUsernameAndPassword(
+                        request.getUsername(), request.getPassword()).
+                orElseThrow(() -> new IllegalStateException("Invalid username or password"));
     }
 
-    public static List<UserAccountDAO> allUserAccountsView(UserAccountRepository userAccountRepository) {
-        List<UserAccount> userAccountList = userAccountRepository.findAll();
-        return  userAccountList.stream().map(UserAccountDAO::new).toList();
-    }
-
-    public static UserAccountDAO userAccountView(UserAccountRepository userAccountRepository, String username) {
+    public UserAccountDAO userAccountView(String username) {
         return new UserAccountDAO(userAccountRepository.findByUsername(username).orElseThrow(
                 // Should be no error
                 () -> new IllegalStateException("Invalid username")
         ));
     }
+
+    public void userAccountDelete(String username) {
+        UserAccount user = userAccountRepository.findByUsername(username).orElseThrow(
+                () -> new IllegalStateException("User not found")
+        );
+        userAccountRepository.delete(user);
+    }
+
+    public List<UserAccountDAO> allUserAccountsView() {
+        List<UserAccount> userAccountList = userAccountRepository.findAll();
+        return  userAccountList.stream().map(UserAccountDAO::new).toList();
+    }
+
+
+
 
     /////////////////////////////////////////////////////////////////////////////////////
     //                       Getter And Setter, ToString                               //
@@ -148,4 +165,5 @@ public class UserAccount {
                 ", accountSuspended=" + accountSuspended +
                 '}';
     }
+
 }

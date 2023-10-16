@@ -1,12 +1,13 @@
 package com.teamcs.utils;
 
 import com.teamcs.entities.UserAccount;
+import com.teamcs.entities.UserProfile;
 
 public class UserAccountDAO {
     private String name;
     private String username;
     private String email;
-    private String profile;
+    private UserProfile profile;
 
     public UserAccountDAO() {
         super();
@@ -16,21 +17,21 @@ public class UserAccountDAO {
         this.name = userAccount.getName();
         this.username = userAccount.getUsername();
         this.email = userAccount.getEmail();
-        this.profile = userAccount.getUserProfile().getProfile();
+        this.profile = userAccount.getUserProfile();
     }
 
-    public UserAccountDAO(String name, String username, String email, String profile) {
+    public UserAccountDAO(String name, String username, String email, UserProfile profile) {
         this.name = name;
         this.username = username;
         this.profile = profile;
         this.email = email;
     }
 
-    public String getProfile() {
+    public UserProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(String profile) {
+    public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
 

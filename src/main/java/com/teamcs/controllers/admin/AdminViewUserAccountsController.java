@@ -13,15 +13,15 @@ import java.util.List;
 @RestController
 @RequestMapping("admin/view")
 @CrossOrigin("*")
-public class adminViewUserAccountsController {
-    private final UserAccountRepository userAccountRepository;
-    public adminViewUserAccountsController(UserAccountRepository userAccountRepository) {
-        this.userAccountRepository = userAccountRepository;
+public class AdminViewUserAccountsController {
+    private final UserAccount userAccount;
+
+    public AdminViewUserAccountsController(UserAccount user) {
+        userAccount = user;
     }
 
-    // User Profile is not included, can be updated in the DAO object.
     @GetMapping
     public List<UserAccountDAO> adminViewUserAccounts (){
-        return UserAccount.allUserAccountsView(userAccountRepository);
+        return userAccount.allUserAccountsView();
     }
 }

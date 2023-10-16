@@ -1,17 +1,29 @@
 package com.teamcs.entities;
 
+import com.teamcs.repositories.UserProfileRepository;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+/**
+ * The private member : profile and role forms an unique
+ */
+@Component
 @Entity
-@Table(name = "UserProfiles")
+@Table(name = "UserProfiles", uniqueConstraints = @UniqueConstraint(columnNames = {"profile", "role"}))
 public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "profile_id")
     private Integer profileId;
-    @Column(unique = true)
+    @Column(name = "profile", nullable = false)
     private String profile;
+    @Column(name = "role")
     private String role;
+
+    @Autowired
+    @Transient
+    private UserProfileRepository userProfileRepository;
 
     public UserProfile() {super();}
 

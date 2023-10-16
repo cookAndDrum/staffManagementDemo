@@ -9,6 +9,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 @SpringBootApplication
@@ -18,7 +20,19 @@ public class StaffManagementDemoApplication {
 		SpringApplication.run(StaffManagementDemoApplication.class, args);
 	}
 
-	// Add some admin and staff user during runtime
+	/**
+	 *
+	 * @param userAccountRepository
+	 * @param userProfileRepository
+	 * @return
+	 *
+	 * Generate At least
+	 * 1. One Admin user
+	 * 2. 100 userAccounts of random profiles excluding admin
+	 * 3. One suspended user
+	 * 4. One generic owner
+	 * 5. One generic manager
+	 */
 	@Bean
 	CommandLineRunner run (
 			UserAccountRepository userAccountRepository,
@@ -33,25 +47,35 @@ public class StaffManagementDemoApplication {
 					"admin@mail.com", "password", adminProfile);
 			userAccountRepository.save(adminUser);
 
-			UserProfile staffProfile = new UserProfile("STAFF", "Chef, Waiter, Cashier");
-			userProfileRepository.save(staffProfile);
+			List<UserProfile> staffProfileList = List.of(
+					new UserProfile("STAFF", "Chef"),
+					new UserProfile("STAFF", "Cashier"),
+					new UserProfile("STAFF", "Waiter"),
+					new UserProfile("OWNER", "owner"),
+					new UserProfile("MANAGER", "manager")
+			);
 
-			IntStream.range(0, 10).forEach(i -> {
-				String nameUsername = String.format("staff_%d", i + 1);
+			userProfileRepository.saveAll(staffProfileList);
+
+			IntStream.range(0, 100).forEach(i -> {
+				Random random = new Random();
+				UserProfile randomProfile = staffProfileList.get(random.nextInt(staffProfileList.size()));
+				String nameUsername = String.format("%s_%d", randomProfile.getRole() , i + 1);
 				userAccountRepository.save(new UserAccount(nameUsername, nameUsername,
-						String.format("%s@mail.com", nameUsername), "password", staffProfile));
+						String.format("%s@mail.com", nameUsername), "password", randomProfile));
 			});
 
 			UserAccount suspendedStaff = new UserAccount("badBoy", "badBoy",
-					"bad@mail.com", "password", staffProfile);
+					"bad@mail.com", "password", staffProfileList.get(1));
 			suspendedStaff.setAccountSuspended(true);
 			userAccountRepository.save(suspendedStaff);
 
-			UserProfile ownerProfile = new UserProfile("OWNER", "");
-			userProfileRepository.save(ownerProfile);
 			UserAccount ownerUser = new UserAccount("owner", "owner",
-					"owner@mail.com", "password", ownerProfile);
+					"owner@mail.com", "password", staffProfileList.get(3));
 			userAccountRepository.save(ownerUser);
+			UserAccount managerUser = new UserAccount("manager", "manager",
+					"manager@mail.com", "password", staffProfileList.get(4));
+			userAccountRepository.save(managerUser);
 		};
 	}
 }
